@@ -43,7 +43,7 @@ export const addProduct = async (p) => {
     });
 
     const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error("Timeout: Firebase não respondeu em 15s")), 15000)
+      setTimeout(() => reject(new Error("Timeout: Firebase não respondeu em 60s")), 60000)
     );
 
     const docRef = await Promise.race([addPromise, timeoutPromise]);
