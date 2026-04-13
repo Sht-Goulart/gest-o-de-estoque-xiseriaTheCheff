@@ -61,7 +61,7 @@ const Dashboard = ({ setActiveTab }) => {
     <div className="p-4 space-y-6">
       <header className="py-4">
         <p className="text-white/40 font-bold text-sm tracking-widest uppercase">Bem-vindo à</p>
-        <h2 className="text-4xl font-graffiti text-white">XISERIA GESTÃO</h2>
+        <h2 className="text-4xl font-graffiti text-white">THE CHEFF GESTÃO</h2>
       </header>
 
       <div className="grid grid-cols-1 gap-4">
