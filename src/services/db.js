@@ -1,82 +1,60 @@
 import {
   collection,
   addDoc,
-  updateDoc,
-  doc,
   getDocs,
   query,
   orderBy,
   serverTimestamp,
+  doc,
+  updateDoc,
   increment
 } from "firebase/firestore";
 import { db } from "../firebase";
 
-// Produtos
+const PRODUTOS_COL = "produtos";
+const HISTORICO_COL = "historico";
+
 export const getProducts = async () => {
   try {
-    const q = query(collection(db, "produtos"), orderBy("nome"));
-    const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-  } catch (error) {
-    console.error("Erro ao buscar produtos:", error);
+    const q = query(collection(db, PRODUTOS_COL), orderBy("nome"));
+    const snap = await getDocs(q);
+    return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch (e) {
+    console.error("Erro getProducts:", e);
     return [];
   }
 };
 
-export const addProduct = async (product) => {
-  try {
-    return await addDoc(collection(db, "produtos"), {
-      ...product,
-      quantidade: Number(product.quantidade),
-      preco_unitario: Number(product.preco_unitario),
-      estoque_minimo: Number(product.estoque_minimo),
-      createdAt: serverTimestamp()
-    });
-  } catch (error) {
-    console.error("Erro ao adicionar produto:", error);
-    throw error;
-  }
+export const addProduct = async (p) => {
+  return addDoc(collection(db, PRODUTOS_COL), {
+    ...p,
+    quantidade: Number(p.quantidade),
+    preco_unitario: Number(p.preco_unitario),
+    estoque_minimo: Number(p.estoque_minimo),
+    createdAt: serverTimestamp()
+  });
 };
 
-export const updateProduct = async (id, data) => {
-  try {
-    const productRef = doc(db, "produtos", id);
-    return await updateDoc(productRef, data);
-  } catch (error) {
-    console.error("Erro ao atualizar produto:", error);
-    throw error;
-  }
+export const registerMovement = async (m) => {
+  // Histórico
+  await addDoc(collection(db, HISTORICO_COL), {
+    ...m,
+    data: serverTimestamp()
+  });
+
+  // Atualiza saldo
+  const ref = doc(db, PRODUTOS_COL, m.produto_id);
+  const diff = m.tipo === 'entrada' ? m.quantidade : -m.quantidade;
+  return updateDoc(ref, { quantidade: increment(diff) });
 };
 
-// Histórico / Movimentação
 export const getHistory = async () => {
   try {
-    const q = query(collection(db, "historico"), orderBy("data", "desc"));
-    const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-  } catch (error) {
-    console.error("Erro ao buscar histórico:", error);
+    const q = query(collection(db, HISTORICO_COL), orderBy("data", "desc"));
+    const snap = await getDocs(q);
+    return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch (e) {
+    console.error("Erro getHistory:", e);
     return [];
-  }
-};
-
-export const registerMovement = async (movement) => {
-  try {
-    // 1. Adicionar ao histórico
-    await addDoc(collection(db, "historico"), {
-      ...movement,
-      data: serverTimestamp()
-    });
-
-    // 2. Atualizar quantidade no produto
-    const productRef = doc(db, "produtos", movement.produto_id);
-    const incrementValue = movement.tipo === 'entrada' ? movement.quantidade : -movement.quantidade;
-
-    return await updateDoc(productRef, {
-      quantidade: increment(incrementValue)
-    });
-  } catch (error) {
-    console.error("Erro ao registrar movimentação:", error);
-    throw error;
   }
 };
