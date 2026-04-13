@@ -6,7 +6,8 @@ import {
   orderBy,
   doc,
   updateDoc,
-  increment
+  increment,
+  deleteDoc
 } from "firebase/firestore";
 import { db } from "../firebase";
 
@@ -88,5 +89,17 @@ export const getHistory = async () => {
     const qSimple = query(collection(db, HISTORICO_COL));
     const snapSimple = await getDocs(qSimple);
     return snapSimple.docs.map(d => ({ id: d.id, ...d.data() }));
+  }
+};
+
+export const deleteProduct = async (id) => {
+  try {
+    console.log("Excluindo produto:", id);
+    const ref = doc(db, PRODUTOS_COL, id);
+    await deleteDoc(ref);
+    console.log("Produto excluído com sucesso!");
+  } catch (e) {
+    console.error("Erro ao excluir produto:", e);
+    throw e;
   }
 };

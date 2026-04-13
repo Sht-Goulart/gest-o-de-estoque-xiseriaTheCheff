@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, AlertTriangle, ArrowUpCircle, ArrowDownCircle, MoreVertical } from 'lucide-react';
+import { Search, Plus, AlertTriangle, ArrowUpCircle, ArrowDownCircle, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getProducts, registerMovement, addProduct } from '../services/db';
+import { getProducts, registerMovement, addProduct, deleteProduct } from '../services/db';
 
 const Inventory = () => {
   const [products, setProducts] = useState([]);
@@ -69,6 +69,17 @@ const Inventory = () => {
     fetchProducts();
   };
 
+  const handleDelete = async (product) => {
+    if (window.confirm(`Tem certeza que deseja excluir "${product.nome}"? Esta ação não pode ser desfeita.`)) {
+      try {
+        await deleteProduct(product.id);
+        fetchProducts();
+      } catch (error) {
+        alert("Erro ao excluir produto: " + error.message);
+      }
+    }
+  };
+
   return (
     <div className="pb-24 px-4 pt-4">
       <div className="flex justify-between items-center mb-6">
@@ -107,11 +118,20 @@ const Inventory = () => {
               className={`glass-card p-4 relative overflow-hidden ${product.quantidade <= product.estoque_minimo ? 'border-xis-neon-yellow/50' : 'border-white/10'}`}
             >
               <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="text-lg font-bold uppercase tracking-tight">{product.nome}</h3>
+                <div className="flex-1">
+                  <div className="flex justify-between items-start">
+                    <h3 className="text-lg font-bold uppercase tracking-tight">{product.nome}</h3>
+                    <button
+                      onClick={() => handleDelete(product)}
+                      className="text-white/20 hover:text-xis-neon-pink p-1 transition-colors"
+                      title="Excluir Item"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
                   <p className="text-white/50 text-xs">Custo Unit: R$ {product.preco_unitario.toFixed(2)} / {product.unidade}</p>
                 </div>
-                <div className="text-right">
+                <div className="text-right ml-4">
                   <div className={`text-2xl font-black ${product.quantidade <= product.estoque_minimo ? 'text-xis-neon-yellow' : 'text-xis-neon-green'}`}>
                     {product.quantidade} <span className="text-sm font-normal opacity-70">{product.unidade}</span>
                   </div>
