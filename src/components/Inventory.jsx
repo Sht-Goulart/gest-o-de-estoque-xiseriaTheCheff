@@ -170,27 +170,27 @@ const Inventory = () => {
               <h3 className="text-2xl font-graffiti mb-6">NOVO INSUMO</h3>
               <form onSubmit={handleAddProduct} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold uppercase text-white/50 mb-1">Nome do Insumo</label>
-                  <input name="nome" required className="w-full bg-white/5 border border-white/10 rounded-xl p-3 focus:border-xis-neon-green outline-none" placeholder="Ex: Pão de Xis" />
+                  <label htmlFor="nome" className="block text-xs font-bold uppercase text-white/50 mb-1">Nome do Insumo</label>
+                  <input id="nome" name="nome" required className="w-full bg-white/5 border border-white/10 rounded-xl p-3 focus:border-xis-neon-green outline-none" placeholder="Ex: Pão de Xis" />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-bold uppercase text-white/50 mb-1">Qtd Inicial</label>
-                    <input name="quantidade" type="number" step="0.01" required className="w-full bg-white/5 border border-white/10 rounded-xl p-3 focus:border-xis-neon-green outline-none" placeholder="0.00" />
+                    <label htmlFor="quantidade" className="block text-xs font-bold uppercase text-white/50 mb-1">Qtd Inicial</label>
+                    <input id="quantidade" name="quantidade" type="number" step="0.01" required className="w-full bg-white/5 border border-white/10 rounded-xl p-3 focus:border-xis-neon-green outline-none" placeholder="0.00" />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold uppercase text-white/50 mb-1">Unidade</label>
-                    <input name="unidade" required className="w-full bg-white/5 border border-white/10 rounded-xl p-3 focus:border-xis-neon-green outline-none" placeholder="un, kg, g..." />
+                    <label htmlFor="unidade" className="block text-xs font-bold uppercase text-white/50 mb-1">Unidade</label>
+                    <input id="unidade" name="unidade" required className="w-full bg-white/5 border border-white/10 rounded-xl p-3 focus:border-xis-neon-green outline-none" placeholder="un, kg, g..." />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-bold uppercase text-white/50 mb-1">Custo Unitário (R$)</label>
-                    <input name="preco_unitario" type="number" step="0.01" required className="w-full bg-white/5 border border-white/10 rounded-xl p-3 focus:border-xis-neon-green outline-none" placeholder="0.00" />
+                    <label htmlFor="preco_unitario" className="block text-xs font-bold uppercase text-white/50 mb-1">Custo Unitário (R$)</label>
+                    <input id="preco_unitario" name="preco_unitario" type="number" step="0.01" required className="w-full bg-white/5 border border-white/10 rounded-xl p-3 focus:border-xis-neon-green outline-none" placeholder="0.00" />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold uppercase text-white/50 mb-1">Min Alerta</label>
-                    <input name="estoque_minimo" type="number" step="0.01" required className="w-full bg-white/5 border border-white/10 rounded-xl p-3 focus:border-xis-neon-green outline-none" placeholder="5" />
+                    <label htmlFor="estoque_minimo" className="block text-xs font-bold uppercase text-white/50 mb-1">Min Alerta</label>
+                    <input id="estoque_minimo" name="estoque_minimo" type="number" step="0.01" required className="w-full bg-white/5 border border-white/10 rounded-xl p-3 focus:border-xis-neon-green outline-none" placeholder="5" />
                   </div>
                 </div>
                 <button
@@ -230,8 +230,8 @@ const Inventory = () => {
 
               <form onSubmit={handleMovement} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold uppercase text-white/50 mb-1">Quantidade ({selectedProduct?.unidade})</label>
-                  <input name="quantidade" type="number" step="0.01" required autoFocus className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-2xl font-black text-center focus:border-white outline-none" placeholder="0" />
+                  <label htmlFor="mov_quantidade" className="block text-xs font-bold uppercase text-white/50 mb-1">Quantidade ({selectedProduct?.unidade})</label>
+                  <input id="mov_quantidade" name="quantidade" type="number" step="0.01" required autoFocus className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-2xl font-black text-center focus:border-white outline-none" placeholder="0" />
                 </div>
 
                 <button
