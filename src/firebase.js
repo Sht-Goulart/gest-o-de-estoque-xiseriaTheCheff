@@ -2,13 +2,12 @@ import { initializeApp } from "firebase/app";
 import { initializeFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCnryM3yncd3zR8_qhfEjyaIEIHCzBOB_c",
-  authDomain: "gestao-de-estoque-4abb9.firebaseapp.com",
-  projectId: "gestao-de-estoque-4abb9",
-  storageBucket: "gestao-de-estoque-4abb9.firebasestorage.app",
-  messagingSenderId: "620500955568",
-  appId: "1:620500955568:web:2d14ff5cf6002b19c16675",
-  measurementId: "G-HD9CRHFLQG"
+  apiKey: "AIzaSyCRgHuqxFqExGifxCceYQlT_DU_PDueIas",
+  authDomain: "gestor-de-estoque-82223.firebaseapp.com",
+  projectId: "gestor-de-estoque-82223",
+  storageBucket: "gestor-de-estoque-82223.firebasestorage.app",
+  messagingSenderId: "404859324685",
+  appId: "1:404859324685:web:852856f52f0220629cc844"
 };
 
 console.log("Inicializando Firebase (padrão)...");
