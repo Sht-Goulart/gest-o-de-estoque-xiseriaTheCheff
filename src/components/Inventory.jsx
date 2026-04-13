@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, AlertTriangle, ArrowUpCircle, ArrowDownCircle, Trash2 } from 'lucide-react';
+import { Search, Plus, AlertTriangle, ArrowUpCircle, ArrowDownCircle, Trash2, Pencil, Filter } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getProducts, registerMovement, addProduct, deleteProduct } from '../services/db';
+import { getProducts, registerMovement, addProduct, deleteProduct, updateProduct } from '../services/db';
 
 const Inventory = () => {
   const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [filterLowStock, setFilterLowStock] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState('add'); // 'add' ou 'edit'
   const [isMovementModalOpen, setIsMovementModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [movementType, setMovementType] = useState('entrada');
@@ -25,23 +27,31 @@ const Inventory = () => {
     setLoading(false);
   };
 
-  const filteredProducts = products.filter(p =>
-    p.nome.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredProducts = products.filter(p => {
+    const matchesSearch = p.nome.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesLowStock = filterLowStock ? p.quantidade <= p.estoque_minimo : true;
+    return matchesSearch && matchesLowStock;
+  });
 
-  const handleAddProduct = async (e) => {
+  const handleProductSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
       const formData = new FormData(e.target);
-      const newProduct = {
+      const productData = {
         nome: formData.get('nome'),
         quantidade: Number(formData.get('quantidade')),
         unidade: formData.get('unidade'),
         preco_unitario: Number(formData.get('preco_unitario')),
         estoque_minimo: Number(formData.get('estoque_minimo')),
       };
-      await addProduct(newProduct);
+
+      if (modalMode === 'add') {
+        await addProduct(productData);
+      } else {
+        await updateProduct(selectedProduct.id, productData);
+      }
+
       setIsModalOpen(false);
       fetchProducts();
     } catch (error) {
@@ -92,15 +102,24 @@ const Inventory = () => {
         </button>
       </div>
 
-      <div className="relative mb-6">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" size={20} />
-        <input
-          type="text"
-          placeholder="Buscar insumo..."
-          className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:border-xis-neon-blue transition-colors"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+      <div className="flex gap-2 mb-6">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" size={20} />
+          <input
+            type="text"
+            placeholder="Buscar insumo..."
+            className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:border-xis-neon-blue transition-colors"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+        <button
+          onClick={() => setFilterLowStock(!filterLowStock)}
+          className={`p-3 rounded-xl border transition-colors flex items-center gap-2 ${filterLowStock ? 'bg-xis-neon-yellow/20 border-xis-neon-yellow text-xis-neon-yellow' : 'bg-white/5 border-white/10 text-white/40'}`}
+        >
+          <AlertTriangle size={20} />
+          {filterLowStock && <span className="text-xs font-bold">BAIXO</span>}
+        </button>
       </div>
 
       <div className="space-y-4">
@@ -121,13 +140,26 @@ const Inventory = () => {
                 <div className="flex-1">
                   <div className="flex justify-between items-start">
                     <h3 className="text-lg font-bold uppercase tracking-tight">{product.nome}</h3>
-                    <button
-                      onClick={() => handleDelete(product)}
-                      className="text-white/20 hover:text-xis-neon-pink p-1 transition-colors"
-                      title="Excluir Item"
-                    >
-                      <Trash2 size={16} />
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => {
+                          setSelectedProduct(product);
+                          setModalMode('edit');
+                          setIsModalOpen(true);
+                        }}
+                        className="text-white/20 hover:text-xis-neon-blue p-1 transition-colors"
+                        title="Editar Item"
+                      >
+                        <Pencil size={16} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(product)}
+                        className="text-white/20 hover:text-xis-neon-pink p-1 transition-colors"
+                        title="Excluir Item"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
                   </div>
                   <p className="text-white/50 text-xs">Custo Unit: R$ {product.preco_unitario.toFixed(2)} / {product.unidade}</p>
                 </div>
@@ -187,30 +219,32 @@ const Inventory = () => {
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
               className="bg-xis-black border border-white/20 w-full max-w-sm rounded-3xl p-6 relative z-10"
             >
-              <h3 className="text-2xl font-graffiti mb-6">NOVO INSUMO</h3>
-              <form onSubmit={handleAddProduct} className="space-y-4">
+              <h3 className="text-2xl font-graffiti mb-6 uppercase tracking-widest">
+                {modalMode === 'add' ? 'NOVO INSUMO' : 'EDITAR INSUMO'}
+              </h3>
+              <form onSubmit={handleProductSubmit} className="space-y-4">
                 <div>
                   <label htmlFor="nome" className="block text-xs font-bold uppercase text-white/50 mb-1">Nome do Insumo</label>
-                  <input id="nome" name="nome" required className="w-full bg-white/5 border border-white/10 rounded-xl p-3 focus:border-xis-neon-green outline-none" placeholder="Ex: Pão de Xis" />
+                  <input id="nome" name="nome" required defaultValue={modalMode === 'edit' ? selectedProduct?.nome : ''} className="w-full bg-white/5 border border-white/10 rounded-xl p-3 focus:border-xis-neon-green outline-none" placeholder="Ex: Pão de Xis" />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="quantidade" className="block text-xs font-bold uppercase text-white/50 mb-1">Qtd Inicial</label>
-                    <input id="quantidade" name="quantidade" type="number" step="0.01" required className="w-full bg-white/5 border border-white/10 rounded-xl p-3 focus:border-xis-neon-green outline-none" placeholder="0.00" />
+                    <label htmlFor="quantidade" className="block text-xs font-bold uppercase text-white/50 mb-1">Qtd {modalMode === 'edit' ? 'Atual' : 'Inicial'}</label>
+                    <input id="quantidade" name="quantidade" type="number" step="0.01" required defaultValue={modalMode === 'edit' ? selectedProduct?.quantidade : ''} className="w-full bg-white/5 border border-white/10 rounded-xl p-3 focus:border-xis-neon-green outline-none" placeholder="0.00" />
                   </div>
                   <div>
                     <label htmlFor="unidade" className="block text-xs font-bold uppercase text-white/50 mb-1">Unidade</label>
-                    <input id="unidade" name="unidade" required className="w-full bg-white/5 border border-white/10 rounded-xl p-3 focus:border-xis-neon-green outline-none" placeholder="un, kg, g..." />
+                    <input id="unidade" name="unidade" required defaultValue={modalMode === 'edit' ? selectedProduct?.unidade : ''} className="w-full bg-white/5 border border-white/10 rounded-xl p-3 focus:border-xis-neon-green outline-none" placeholder="un, kg, g..." />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label htmlFor="preco_unitario" className="block text-xs font-bold uppercase text-white/50 mb-1">Custo Unitário (R$)</label>
-                    <input id="preco_unitario" name="preco_unitario" type="number" step="0.01" required className="w-full bg-white/5 border border-white/10 rounded-xl p-3 focus:border-xis-neon-green outline-none" placeholder="0.00" />
+                    <input id="preco_unitario" name="preco_unitario" type="number" step="0.01" required defaultValue={modalMode === 'edit' ? selectedProduct?.preco_unitario : ''} className="w-full bg-white/5 border border-white/10 rounded-xl p-3 focus:border-xis-neon-green outline-none" placeholder="0.00" />
                   </div>
                   <div>
                     <label htmlFor="estoque_minimo" className="block text-xs font-bold uppercase text-white/50 mb-1">Min Alerta</label>
-                    <input id="estoque_minimo" name="estoque_minimo" type="number" step="0.01" required className="w-full bg-white/5 border border-white/10 rounded-xl p-3 focus:border-xis-neon-green outline-none" placeholder="5" />
+                    <input id="estoque_minimo" name="estoque_minimo" type="number" step="0.01" required defaultValue={modalMode === 'edit' ? selectedProduct?.estoque_minimo : ''} className="w-full bg-white/5 border border-white/10 rounded-xl p-3 focus:border-xis-neon-green outline-none" placeholder="5" />
                   </div>
                 </div>
                 <button
@@ -218,7 +252,7 @@ const Inventory = () => {
                   disabled={isSubmitting}
                   className="w-full bg-white text-xis-black font-black py-4 rounded-xl mt-4 hover:bg-xis-neon-green transition-colors disabled:opacity-50"
                 >
-                  {isSubmitting ? 'SALVANDO...' : 'CADASTRAR'}
+                  {isSubmitting ? 'SALVANDO...' : modalMode === 'add' ? 'CADASTRAR' : 'SALVAR ALTERAÇÕES'}
                 </button>
               </form>
             </motion.div>

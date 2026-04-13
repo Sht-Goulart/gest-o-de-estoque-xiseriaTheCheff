@@ -56,6 +56,23 @@ export const addProduct = async (p) => {
   }
 };
 
+export const updateProduct = async (id, data) => {
+  try {
+    console.log("Editando produto:", id, data);
+    const ref = doc(db, PRODUTOS_COL, id);
+    await updateDoc(ref, {
+      ...data,
+      quantidade: Number(data.quantidade),
+      preco_unitario: Number(data.preco_unitario),
+      estoque_minimo: Number(data.estoque_minimo),
+    });
+    console.log("Produto editado com sucesso!");
+  } catch (e) {
+    console.error("Erro ao editar produto:", e);
+    throw e;
+  }
+};
+
 export const registerMovement = async (m) => {
   try {
     console.log("Registrando movimentação:", m);
