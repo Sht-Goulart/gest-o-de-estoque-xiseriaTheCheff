@@ -13,45 +13,70 @@ import { db } from "../firebase";
 
 // Produtos
 export const getProducts = async () => {
-  const q = query(collection(db, "produtos"), orderBy("nome"));
-  const querySnapshot = await getDocs(q);
-  return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  try {
+    const q = query(collection(db, "produtos"), orderBy("nome"));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (error) {
+    console.error("Erro ao buscar produtos:", error);
+    return [];
+  }
 };
 
 export const addProduct = async (product) => {
-  return await addDoc(collection(db, "produtos"), {
-    ...product,
-    quantidade: Number(product.quantidade),
-    preco_unitario: Number(product.preco_unitario),
-    estoque_minimo: Number(product.estoque_minimo),
-    createdAt: serverTimestamp()
-  });
+  try {
+    return await addDoc(collection(db, "produtos"), {
+      ...product,
+      quantidade: Number(product.quantidade),
+      preco_unitario: Number(product.preco_unitario),
+      estoque_minimo: Number(product.estoque_minimo),
+      createdAt: serverTimestamp()
+    });
+  } catch (error) {
+    console.error("Erro ao adicionar produto:", error);
+    throw error;
+  }
 };
 
 export const updateProduct = async (id, data) => {
-  const productRef = doc(db, "produtos", id);
-  return await updateDoc(productRef, data);
+  try {
+    const productRef = doc(db, "produtos", id);
+    return await updateDoc(productRef, data);
+  } catch (error) {
+    console.error("Erro ao atualizar produto:", error);
+    throw error;
+  }
 };
 
 // Histórico / Movimentação
 export const getHistory = async () => {
-  const q = query(collection(db, "historico"), orderBy("data", "desc"));
-  const querySnapshot = await getDocs(q);
-  return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  try {
+    const q = query(collection(db, "historico"), orderBy("data", "desc"));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (error) {
+    console.error("Erro ao buscar histórico:", error);
+    return [];
+  }
 };
 
 export const registerMovement = async (movement) => {
-  // 1. Adicionar ao histórico
-  await addDoc(collection(db, "historico"), {
-    ...movement,
-    data: serverTimestamp()
-  });
+  try {
+    // 1. Adicionar ao histórico
+    await addDoc(collection(db, "historico"), {
+      ...movement,
+      data: serverTimestamp()
+    });
 
-  // 2. Atualizar quantidade no produto
-  const productRef = doc(db, "produtos", movement.produto_id);
-  const incrementValue = movement.tipo === 'entrada' ? movement.quantidade : -movement.quantidade;
+    // 2. Atualizar quantidade no produto
+    const productRef = doc(db, "produtos", movement.produto_id);
+    const incrementValue = movement.tipo === 'entrada' ? movement.quantidade : -movement.quantidade;
 
-  return await updateDoc(productRef, {
-    quantidade: increment(incrementValue)
-  });
+    return await updateDoc(productRef, {
+      quantidade: increment(incrementValue)
+    });
+  } catch (error) {
+    console.error("Erro ao registrar movimentação:", error);
+    throw error;
+  }
 };
