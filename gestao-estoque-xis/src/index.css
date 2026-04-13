@@ -1,0 +1,49 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&family=Permanent+Marker&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-xis-black: #0a0a0a;
+  --color-xis-white: #ffffff;
+  --color-xis-neon-green: #39ff14;
+  --color-xis-neon-pink: #ff00ff;
+  --color-xis-neon-blue: #00ffff;
+  --color-xis-neon-yellow: #ffff00;
+
+  --font-graffiti: "Permanent Marker", cursive;
+  --font-urban: "Montserrat", sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-xis-black text-xis-white font-urban overflow-x-hidden;
+  }
+}
+
+@layer components {
+  .graffiti-text {
+    @apply font-graffiti tracking-wider;
+  }
+
+  .glass-card {
+    @apply bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl;
+  }
+
+  .neon-shadow-green {
+    box-shadow: 0 0 15px rgba(57, 255, 20, 0.3);
+  }
+
+  .neon-border-pink {
+    @apply border-xis-neon-pink shadow-[0_0_10px_rgba(255,0,255,0.5)];
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-xis-black);
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-white/20 rounded-full;
+}
