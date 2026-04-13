@@ -14,4 +14,5 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app);
+// Especificando explicitamente o ID do banco de dados '(default)'
+export const db = getFirestore(app, "(default)");
