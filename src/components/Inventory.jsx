@@ -46,7 +46,7 @@ const Inventory = () => {
       fetchProducts();
     } catch (error) {
       console.error("Erro ao adicionar:", error);
-      alert("Erro ao salvar no Firebase. Verifique se o Firestore está ativado e as regras permitem gravação.");
+      alert(`Erro ao salvar no Firebase: ${error.message}. Verifique se o Firestore está ativado e as regras permitem gravação.`);
     } finally {
       setIsSubmitting(false);
     }
