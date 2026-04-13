@@ -12,6 +12,7 @@ const Inventory = () => {
   const [movementType, setMovementType] = useState('entrada');
 
   const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     fetchProducts();
@@ -30,17 +31,25 @@ const Inventory = () => {
 
   const handleAddProduct = async (e) => {
     e.preventDefault();
-    const formData = new FormData(e.target);
-    const newProduct = {
-      nome: formData.get('nome'),
-      quantidade: Number(formData.get('quantidade')),
-      unidade: formData.get('unidade'),
-      preco_unitario: Number(formData.get('preco_unitario')),
-      estoque_minimo: Number(formData.get('estoque_minimo')),
-    };
-    await addProduct(newProduct);
-    setIsModalOpen(false);
-    fetchProducts();
+    setIsSubmitting(true);
+    try {
+      const formData = new FormData(e.target);
+      const newProduct = {
+        nome: formData.get('nome'),
+        quantidade: Number(formData.get('quantidade')),
+        unidade: formData.get('unidade'),
+        preco_unitario: Number(formData.get('preco_unitario')),
+        estoque_minimo: Number(formData.get('estoque_minimo')),
+      };
+      await addProduct(newProduct);
+      setIsModalOpen(false);
+      fetchProducts();
+    } catch (error) {
+      console.error("Erro ao adicionar:", error);
+      alert("Erro ao salvar no Firebase. Verifique se o Firestore está ativado e as regras permitem gravação.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleMovement = async (e) => {
@@ -184,7 +193,13 @@ const Inventory = () => {
                     <input name="estoque_minimo" type="number" step="0.01" required className="w-full bg-white/5 border border-white/10 rounded-xl p-3 focus:border-xis-neon-green outline-none" placeholder="5" />
                   </div>
                 </div>
-                <button type="submit" className="w-full bg-white text-xis-black font-black py-4 rounded-xl mt-4 hover:bg-xis-neon-green transition-colors">CADASTRAR</button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full bg-white text-xis-black font-black py-4 rounded-xl mt-4 hover:bg-xis-neon-green transition-colors disabled:opacity-50"
+                >
+                  {isSubmitting ? 'SALVANDO...' : 'CADASTRAR'}
+                </button>
               </form>
             </motion.div>
           </div>
